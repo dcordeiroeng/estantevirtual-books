@@ -1,8 +1,12 @@
 package com.example.estantevirtual.controller;
 
+import com.example.estantevirtual.exception.ResourceNotFoundException;
 import com.example.estantevirtual.model.Livro;
+import com.example.estantevirtual.model.Messages;
 import com.example.estantevirtual.service.LivroService;
+import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,43 +14,48 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
-@RestController("/")
+@RestController("/v1")
 public class LivroController {
 
     @Autowired
     LivroService livroService;
 
-    @GetMapping("/livro/{id}")
-    public ResponseEntity<?> buscaLivro(@PathVariable Long id) {
+    @GetMapping("/livros/{id}")
+    public ResponseEntity<?> buscaLivro(@PathVariable Long id) throws NotFoundException {
         Optional<Livro> livro = livroService.buscaLivroPorId(id);
         if(livro.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new ResourceNotFoundException(Messages.getErrors().get("NAO_ENCONTRADO"));
         }
         return new ResponseEntity<>(livro.get(), HttpStatus.OK);
     }
 
     @GetMapping("/livros")
-    public ResponseEntity<?> buscaLivros() {
-        List<Livro> livros = livroService.buscarLivros();
-        return new ResponseEntity<>(livros, HttpStatus.OK);
+    public ResponseEntity<?> buscaLivros(
+            @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+            @RequestParam(value = "limit", defaultValue = "10", required = false) int limit
+    ) {
+        Page<Livro> livros = livroService.buscarLivros(page, limit);
+        if(livros.isEmpty()) {
+            throw new ResourceNotFoundException(Messages.getErrors().get("NENHUM_CADASTRADO"));
+        }
+        return new ResponseEntity<>(livros.getContent(), HttpStatus.OK);
     }
 
-    @PostMapping("/livro")
+    @PostMapping("/livros")
     public ResponseEntity<?> cadastraLivro(@RequestBody Livro livro) {
         livroService.cadastrarLivro(livro);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @DeleteMapping("/livro/{id}")
-    public ResponseEntity<?> deletaLivro(@PathVariable Long id) {
+    @DeleteMapping("/livros/{id}")
+    public ResponseEntity<?> deletaLivro(@PathVariable Long id) throws NotFoundException {
         if(livroService.deletarLivro(id)) {
             return new ResponseEntity<>(HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        throw new ResourceNotFoundException(Messages.getErrors().get("NAO_ENCONTRADO"));
     }
 
-    @PutMapping("/livro/{id}")
+    @PutMapping("/livros/{id}")
     public ResponseEntity<?> atualizaLivro(@PathVariable Long id, @RequestBody Livro livro) {
         if(livroService.atualizarLivro(id, livro)) {
             return new ResponseEntity<>(HttpStatus.OK);

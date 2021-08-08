@@ -15,6 +15,7 @@
     <description>Demo project for Spring Boot</description>
     <properties>
         <java.version>11</java.version>
+        <start-class>com.example.estantevirtual.EstanteVirtualApplication</start-class>
     </properties>
     <dependencies>
         <dependency>
@@ -71,9 +72,22 @@
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+<!--            <version>8.0.25</version>-->
+            <type>jar</type>
+            <scope>runtime</scope>
+        </dependency>
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -97,5 +111,22 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>des</id>
+            <properties>
+                <spring.profiles.active>des</spring.profiles.active>
+                <environment>develop</environment>
+            </properties>
+        </profile>
+        <profile>
+            <id>local</id>
+            <properties>
+                <spring.profiles.active>local</spring.profiles.active>
+                <environment>local</environment>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>

@@ -3,6 +3,9 @@ package com.example.estantevirtual.service;
 import com.example.estantevirtual.model.Livro;
 import com.example.estantevirtual.repository.LivroRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -26,8 +29,8 @@ public class LivroService {
         livroRepository.save(livro);
     }
 
-    public List<Livro> buscarLivros() {
-        return livroRepository.findAll(Sort.by(Sort.Direction.ASC, "titulo"));
+    public Page<Livro> buscarLivros(int page, int limit) {
+        return livroRepository.findAll(PageRequest.of(page, limit, Sort.by("id")));
     }
 
     public boolean deletarLivro(Long id) {

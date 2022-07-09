@@ -2,7 +2,6 @@ package com.example.estantevirtual.controller;
 
 import com.example.estantevirtual.exception.ResourceNotFoundException;
 import com.example.estantevirtual.model.Livro;
-import com.example.estantevirtual.model.Messages;
 import com.example.estantevirtual.service.LivroService;
 import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Optional;
 
 @RestController("/v1")
@@ -21,10 +19,10 @@ public class LivroController {
     LivroService livroService;
 
     @GetMapping("/livros/{id}")
-    public ResponseEntity<?> buscaLivro(@PathVariable Long id) throws NotFoundException {
+    public ResponseEntity<?> buscaLivro(@PathVariable Long id) {
         Optional<Livro> livro = livroService.buscaLivroPorId(id);
         if(livro.isEmpty()) {
-            throw new ResourceNotFoundException(Messages.getErrors().get("NAO_ENCONTRADO"));
+            throw new ResourceNotFoundException("Recurso não encontrado");
         }
         return new ResponseEntity<>(livro.get(), HttpStatus.OK);
     }
@@ -36,7 +34,7 @@ public class LivroController {
     ) {
         Page<Livro> livros = livroService.buscarLivros(page, limit);
         if(livros.isEmpty()) {
-            throw new ResourceNotFoundException(Messages.getErrors().get("NENHUM_CADASTRADO"));
+            throw new ResourceNotFoundException("Recurso não encontrado");
         }
         return new ResponseEntity<>(livros.getContent(), HttpStatus.OK);
     }
@@ -48,11 +46,11 @@ public class LivroController {
     }
 
     @DeleteMapping("/livros/{id}")
-    public ResponseEntity<?> deletaLivro(@PathVariable Long id) throws NotFoundException {
+    public ResponseEntity<?> deletaLivro(@PathVariable Long id) {
         if(livroService.deletarLivro(id)) {
             return new ResponseEntity<>(HttpStatus.OK);
         }
-        throw new ResourceNotFoundException(Messages.getErrors().get("NAO_ENCONTRADO"));
+        throw new ResourceNotFoundException("Recurso não encontrado");
     }
 
     @PutMapping("/livros/{id}")

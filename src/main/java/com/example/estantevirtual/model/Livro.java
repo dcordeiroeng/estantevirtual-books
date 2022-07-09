@@ -1,12 +1,15 @@
 package com.example.estantevirtual.model;
 
-import lombok.*;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.*;
 
 @Entity
-@Data
+@Getter
+@Setter
 public class Livro {
 
     @Id
@@ -16,6 +19,4 @@ public class Livro {
     private String titulo;
     @Length(min = 2, max = 50)
     private String autor;
-    @Enumerated(value = EnumType.STRING)
-    private Status status;
 }

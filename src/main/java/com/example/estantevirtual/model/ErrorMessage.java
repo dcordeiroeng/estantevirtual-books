@@ -1,15 +1,14 @@
 package com.example.estantevirtual.model;
 
-import org.apache.tomcat.jni.Local;
 import org.springframework.http.HttpStatus;
 
 import java.time.LocalDateTime;
 
 public class ErrorMessage {
 
-    private HttpStatus status;
-    private LocalDateTime date = LocalDateTime.now();
-    private String description;
+    private final HttpStatus status;
+    private final LocalDateTime date = LocalDateTime.now();
+    private final String description;
 
     public ErrorMessage(HttpStatus status, String description) {
         this.status = status;

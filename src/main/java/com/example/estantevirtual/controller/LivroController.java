@@ -3,13 +3,13 @@ package com.example.estantevirtual.controller;
 import com.example.estantevirtual.exception.ResourceNotFoundException;
 import com.example.estantevirtual.model.Livro;
 import com.example.estantevirtual.service.LivroService;
-import javassist.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.Optional;
 
 @RestController("/v1")
@@ -40,7 +40,7 @@ public class LivroController {
     }
 
     @PostMapping("/livros")
-    public ResponseEntity<?> cadastraLivro(@RequestBody Livro livro) {
+    public ResponseEntity<?> cadastraLivro(@Valid @RequestBody Livro livro) {
         livroService.cadastrarLivro(livro);
         return new ResponseEntity<>(HttpStatus.OK);
     }

@@ -1,6 +1,6 @@
 package com.example.estantevirtual.service;
 
-import com.example.estantevirtual.model.Livro;
+import com.example.estantevirtual.model.Book;
 import com.example.estantevirtual.repository.LivroRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -11,27 +11,27 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
-public class LivroService {
+public class BookService {
 
     @Autowired
     LivroRepository livroRepository;
 
-    public Optional<Livro> buscaLivroPorId(Long id) {
+    public Optional<Book> findBookBy(Long id) {
         if(livroRepository.findById(id).isPresent()) {
             return livroRepository.findById(id);
         }
         return Optional.empty();
     }
 
-    public void cadastrarLivro(Livro livro) {
-        livroRepository.save(livro);
+    public void saveBook(Book book) {
+        livroRepository.save(book);
     }
 
-    public Page<Livro> buscarLivros(int page, int limit) {
+    public Page<Book> findBooks(int page, int limit) {
         return livroRepository.findAll(PageRequest.of(page, limit, Sort.by("id")));
     }
 
-    public boolean deletarLivro(Long id) {
+    public boolean deleteBook(Long id) {
         if(livroRepository.findById(id).isPresent()) {
             livroRepository.deleteById(id);
             return true;
@@ -39,12 +39,12 @@ public class LivroService {
         return false;
     }
 
-    public Boolean atualizarLivro(Long id, Livro livro) {
-        Optional<Livro> livroParaAtualizar = livroRepository.findById(id);
-        if(livroParaAtualizar.isPresent()) {
-            livroParaAtualizar.get().setTitulo(livro.getTitulo());
-            livroParaAtualizar.get().setAutor(livro.getAutor());
-            livroRepository.save(livroParaAtualizar.get());
+    public Boolean updateBook(Long id, Book book) {
+        Optional<Book> bookToUpdate = livroRepository.findById(id);
+        if(bookToUpdate.isPresent()) {
+            bookToUpdate.get().setTitle(book.getTitle());
+            bookToUpdate.get().setAuthor(book.getAuthor());
+            livroRepository.save(bookToUpdate.get());
             return true;
         }
         return false;

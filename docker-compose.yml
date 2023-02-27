@@ -9,15 +9,15 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_DB: postgres
+      POSTGRES_DB: estantevirtual
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 9V%=JftDf<
   app:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: "app"
     ports:
-      - "8081:8081"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/postgres
+      - "8080:8080"
     depends_on:
       - db

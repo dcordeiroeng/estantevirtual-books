@@ -1,17 +1,8 @@
 package com.example.estantevirtual;
 
-import com.example.estantevirtual.model.Livro;
-import com.example.estantevirtual.repository.LivroRepository;
-import com.example.estantevirtual.service.LivroService;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.util.List;
 
 @SpringBootTest
 @RunWith(MockitoJUnitRunner.class)

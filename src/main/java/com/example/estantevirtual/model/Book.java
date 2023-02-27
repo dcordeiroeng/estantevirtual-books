@@ -5,11 +5,10 @@ import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -17,8 +16,7 @@ import javax.validation.constraints.NotNull;
 public class Book {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private UUID id;
     @Length(min = 3, max = 100, message = "O título do livro deve ter entre {min} e {max} caracteres")
     private String title;
     @Length(min = 3, max = 35, message = "O nome do autor deve ter entre {min} e {max} caracteres")

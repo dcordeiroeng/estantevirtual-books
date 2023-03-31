@@ -17,11 +17,16 @@ public class Book {
 
     @Id
     private UUID id;
-    @Length(min = 3, max = 100, message = "O título do livro deve ter entre {min} e {max} caracteres")
+
+    @NotNull(message = "Title is required")
+    @Length(min = 3, max = 100, message = "Book title must be between {min} and {max} characters")
     private String title;
-    @Length(min = 3, max = 35, message = "O nome do autor deve ter entre {min} e {max} caracteres")
+
+    @NotNull(message = "Author is required")
+    @Length(min = 3, max = 35, message = "Author name must be between {min} and {max} characters")
     private String author;
-    @NotNull(message = "Necessário informar o número de páginas")
-    @Min(value = 1, message = "Número de páginas deve ser maior que 0")
+
+    @NotNull(message = "Number of pages is required")
+    @Min(value = 1, message = "Number of pages must be greater than 0")
     private Integer pages;
 }

@@ -34,10 +34,7 @@ public class BookController {
             @RequestParam(value = "limit", defaultValue = "10", required = false) int limit
     ) {
         Page<Book> books = bookService.findBooks(page, limit);
-        if(books.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
-        return new ResponseEntity<>(books.getContent(), HttpStatus.OK);
+        return new ResponseEntity<>(bookService.responseBuilder(books), HttpStatus.OK);
     }
 
     @PostMapping("/books")

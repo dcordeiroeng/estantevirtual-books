@@ -8,6 +8,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,7 +33,6 @@ public class BookService {
 
     public boolean deleteBook(UUID id) {
         if(bookRepository.findById(id).isPresent()) {
-            System.out.println("entrou");
             bookRepository.deleteById(id);
             return true;
         }
@@ -47,5 +48,14 @@ public class BookService {
             return true;
         }
         return false;
+    }
+
+    public Map<String, Object> responseBuilder(Page<Book> book) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("data", book.getContent());
+        response.put("totalItems", book.getTotalElements());
+        response.put("totalPages", book.getTotalPages());
+        response.put("currentPage", book.getNumber());
+        return response;
     }
 }

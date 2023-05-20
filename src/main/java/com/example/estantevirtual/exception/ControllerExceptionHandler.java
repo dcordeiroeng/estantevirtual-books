@@ -23,6 +23,22 @@ public class ControllerExceptionHandler {
                 ex.getMessage());
     }
 
+    @ExceptionHandler(ResourceAlreadyExistsException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorMessage handleAlreadyExists(ResourceAlreadyExistsException ex, WebRequest req) {
+        return new ErrorMessage(
+                HttpStatus.BAD_REQUEST,
+                ex.getMessage());
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorMessage handleIllegalArgument(IllegalArgumentException ex, WebRequest req) {
+        return new ErrorMessage(
+                HttpStatus.BAD_REQUEST,
+                ex.getMessage());
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorMessages handleValidationError(MethodArgumentNotValidException ex, WebRequest req) {

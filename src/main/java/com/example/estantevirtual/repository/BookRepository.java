@@ -21,4 +21,6 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
     @Transactional
     void deleteById(UUID id);
+
+    Optional<Object> findByTitleAndAuthor(String title, String author);
 }

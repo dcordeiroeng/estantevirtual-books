@@ -2,6 +2,7 @@ package com.example.estantevirtual.controller;
 
 import com.example.estantevirtual.exception.ResourceNotFoundException;
 import com.example.estantevirtual.model.Book;
+import com.example.estantevirtual.model.Options;
 import com.example.estantevirtual.service.BookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,7 +23,7 @@ public class BookController {
     @GetMapping("/books/{id}")
     public ResponseEntity<?> findBook(@PathVariable UUID id) {
         Optional<Book> book = bookService.findBookBy(id);
-        if(book.isEmpty()) {
+        if (book.isEmpty()) {
             throw new ResourceNotFoundException("Recurso não encontrado");
         }
         return new ResponseEntity<>(book.get(), HttpStatus.OK);
@@ -31,22 +32,27 @@ public class BookController {
     @GetMapping("/books")
     public ResponseEntity<?> findBooks(
             @RequestParam(value = "page", defaultValue = "0", required = false) int page,
-            @RequestParam(value = "limit", defaultValue = "10", required = false) int limit
+            @RequestParam(value = "page_size", defaultValue = "10", required = false) int pageSize,
+            @RequestParam(value = "order_by", required = false) String oderBy,
+            @RequestParam(value = "sort", defaultValue = "ASC", required = false) String sort
     ) {
-        Page<Book> books = bookService.findBooks(page, limit);
-        return new ResponseEntity<>(bookService.responseBuilder(books), HttpStatus.OK);
+        Options options = new Options(page, pageSize, oderBy, sort);
+        Page<Book> books = bookService.findBooks(options);
+        return new ResponseEntity<>(
+                bookService.responseBuilder(books),
+                HttpStatus.OK
+        );
     }
 
     @PostMapping("/books")
     public ResponseEntity<?> saveBook(@Valid @RequestBody Book book) {
-        book.setId(UUID.randomUUID());
         bookService.saveBook(book);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping("/books/{id}")
     public ResponseEntity<?> deleteBook(@PathVariable UUID id) {
-        if(bookService.deleteBook(id)) {
+        if (bookService.deleteBook(id)) {
             return new ResponseEntity<>(HttpStatus.OK);
         }
         throw new ResourceNotFoundException("Recurso não encontrado");
@@ -54,7 +60,7 @@ public class BookController {
 
     @PutMapping("/books/{id}")
     public ResponseEntity<?> updateBook(@PathVariable UUID id, @RequestBody Book book) {
-        if(bookService.updateBook(id, book)) {
+        if (bookService.updateBook(id, book)) {
             return new ResponseEntity<>(HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

@@ -8,12 +8,13 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.util.UUID;
 
 @Entity
 @Getter
 @Setter
-public class Book {
+public class Book implements Serializable {
 
     @Id
     private UUID id;

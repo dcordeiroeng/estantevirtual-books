@@ -4,6 +4,9 @@ import com.estantevirtual.exception.ResourceNotFoundException
 import com.estantevirtual.model.Book
 import com.estantevirtual.model.Options
 import com.estantevirtual.service.BookService
+import com.fasterxml.jackson.databind.ObjectMapper
+import org.slf4j.Logger
+import org.springframework.data.domain.Page
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -13,14 +16,18 @@ import javax.validation.Valid
 @RestController
 @RequestMapping("/v1")
 class BookController(
-    private val bookService: BookService
+    private val bookService: BookService,
+    private val logger: Logger,
+    private val objectMapper: ObjectMapper
 ) {
     @GetMapping("/books/{id}")
     fun findBook(@PathVariable id: UUID?): ResponseEntity<*> {
         val book = bookService.findBookBy(id)
         if (book?.isEmpty == true) {
+            logger.error("Not found id: $id")
             throw ResourceNotFoundException()
         }
+        logAsJson(book!!.get())
         return ResponseEntity(book, HttpStatus.OK)
     }
 
@@ -30,13 +37,13 @@ class BookController(
         @RequestParam(value = "pageSize", defaultValue = "10", required = false) pageSize: Int,
         @RequestParam(value = "orderBy", defaultValue = "isbn", required = false) orderBy: String?,
         @RequestParam(value = "sort", defaultValue = "ASC", required = false) sort: String?
-    ): ResponseEntity<*> {
-        val options = Options(page, pageSize, orderBy, sort)
-        val books = bookService.findBooks(options)
-        return ResponseEntity(
-            bookService.responseBuilder(books),
-            HttpStatus.OK
-        )
+    ): ResponseEntity<Map<String, Any>> {
+        val books = bookService.findBooks(Options(page, pageSize, orderBy, sort))
+        val data = responseBuilder(books)
+        data.forEach {
+            logAsJson(it)
+        }
+        return ResponseEntity(data, HttpStatus.OK)
     }
 
     @PostMapping("/books")
@@ -52,6 +59,7 @@ class BookController(
         return if (bookService.deleteBook(id)) {
             ResponseEntity<Any>(HttpStatus.OK)
         } else {
+            logger.error("Not found id: $id")
             throw ResourceNotFoundException()
         }
     }
@@ -61,7 +69,24 @@ class BookController(
         return if (bookService.updateBook(id, book)) {
             ResponseEntity<Any>(HttpStatus.OK)
         } else {
+            logger.error("Not found id: $id")
             throw ResourceNotFoundException()
         }
+    }
+
+    private fun logAsJson(obj: Any) {
+        val json = objectMapper.writeValueAsString(obj)
+        logger.info(json)
+    }
+
+    private fun responseBuilder(book: Page<Book?>): Map<String, Any> {
+        val books = LinkedHashMap<String, Any>()
+        books["books"] = book.content
+        books["totalItems"] = book.totalElements
+        books["currentPage"] = book.number
+        books["totalPages"] = book.totalPages
+        val data = LinkedHashMap<String, Any>()
+        data["data"] = books
+        return data
     }
 }

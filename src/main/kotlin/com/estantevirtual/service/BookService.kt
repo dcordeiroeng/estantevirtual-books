@@ -5,6 +5,7 @@ import com.estantevirtual.model.Book
 import com.estantevirtual.model.Options
 import com.estantevirtual.repository.BookRepository
 import com.estantevirtual.utils.RedisCacheEvict
+import org.slf4j.Logger
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -15,21 +16,12 @@ import java.util.*
 @Service
 class BookService(
     private val bookRepository: BookRepository,
-    private val redisCacheEvict: RedisCacheEvict
+    private val redisCacheEvict: RedisCacheEvict,
+    private val logger: Logger
 ) {
     @Cacheable(value = ["books"])
     fun findBookBy(id: UUID?): Optional<Book?>? {
         return bookRepository.findById(id)
-    }
-
-    fun saveBook(book: Book) {
-        val response = bookRepository.findByIsbn(book.isbn)
-        if (response.isPresent) {
-            throw ResourceAlreadyExistsException("Book already exists")
-        }
-        book.id = UUID.randomUUID()
-        bookRepository.save(book)
-        redisCacheEvict.evictAllCaches()
     }
 
     @Cacheable(value = ["books"])
@@ -44,9 +36,22 @@ class BookService(
         return bookRepository.findAll(page)
     }
 
+    fun saveBook(book: Book) {
+        val response = bookRepository.findByIsbn(book.isbn)
+        if (response.isPresent) {
+            logger.error(("Book with ISBN: ${book.isbn} already exists"))
+            throw ResourceAlreadyExistsException("Resource already exists")
+        }
+        book.id = UUID.randomUUID()
+        bookRepository.save(book)
+        logger.info("Created id: ${book.id} ")
+        redisCacheEvict.evictAllCaches()
+    }
+
     fun deleteBook(id: UUID?): Boolean {
         if (bookRepository.findById(id).isPresent) {
             bookRepository.deleteById(id)
+            logger.info("Deleted id: $id")
             redisCacheEvict.evictAllCaches()
             return true
         }
@@ -61,22 +66,12 @@ class BookService(
                 newBook.get().title = book.title
                 newBook.get().pages = book.pages
                 bookRepository.save(newBook.get())
+                logger.info("Updated id: $id")
                 redisCacheEvict.evictAllCaches()
                 return true
             }
         }
         return false
-    }
-
-    fun responseBuilder(book: Page<Book?>): Map<String, Any> {
-        val books = LinkedHashMap<String, Any>()
-        books["books"] = book.content
-        books["totalItems"] = book.totalElements
-        books["currentPage"] = book.number
-        books["totalPages"] = book.totalPages
-        val data = LinkedHashMap<String, Any>()
-        data["data"] = books
-        return data
     }
 
     private fun validateParams(options: Options) {

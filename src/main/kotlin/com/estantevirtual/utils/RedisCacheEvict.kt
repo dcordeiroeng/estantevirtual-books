@@ -18,7 +18,6 @@ class RedisCacheEvict(
         if (cacheManager is RedisCacheManager) {
             val redisCacheManager: RedisCacheManager = cacheManager
             redisCacheManager.cacheNames.forEach { cacheName -> redisCacheManager.getCache(cacheName)?.clear() }
-            logger.info("All caches were evicted")
         } else {
             throw IllegalStateException("Cache manager is not RedisCacheManager")
         }

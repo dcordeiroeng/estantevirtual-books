@@ -14,13 +14,13 @@ import java.util.*
 import javax.validation.Valid
 
 @RestController
-@RequestMapping("/v1")
+@RequestMapping("/v1/books")
 class BookController(
     private val bookService: BookService,
     private val logger: Logger,
     private val objectMapper: ObjectMapper
 ) {
-    @GetMapping("/books/{id}")
+    @GetMapping("/{id}")
     fun findBook(@PathVariable id: UUID?): ResponseEntity<*> {
         val book = bookService.findBookBy(id)
         if (book?.isEmpty == true) {
@@ -31,7 +31,7 @@ class BookController(
         return ResponseEntity(book, HttpStatus.OK)
     }
 
-    @GetMapping("/books")
+    @GetMapping
     fun findBooks(
         @RequestParam(value = "page", defaultValue = "0", required = false) page: Int,
         @RequestParam(value = "pageSize", defaultValue = "10", required = false) pageSize: Int,
@@ -46,28 +46,27 @@ class BookController(
         return ResponseEntity(data, HttpStatus.OK)
     }
 
-    @PostMapping("/books")
+    @PostMapping
     fun saveBook(@RequestBody book: @Valid Book?): ResponseEntity<*> {
         if (book != null) {
             bookService.saveBook(book)
         }
-        return ResponseEntity<Any>(HttpStatus.OK)
+        return ResponseEntity<Any>(book, HttpStatus.CREATED)
     }
 
-    @DeleteMapping("/books/{id}")
-    fun deleteBook(@PathVariable id: UUID?): ResponseEntity<*> {
-        return if (bookService.deleteBook(id)) {
-            ResponseEntity<Any>(HttpStatus.OK)
+    @PutMapping("/{id}")
+    fun updateBook(@PathVariable id: UUID?, @RequestBody book: Book?): ResponseEntity<*> {
+        return if (bookService.updateBook(id, book)) {
+            ResponseEntity<Any>(book, HttpStatus.OK)
         } else {
-            logger.error("Not found id: $id")
-            throw ResourceNotFoundException()
+            saveBook(book)
         }
     }
 
-    @PutMapping("/books/{id}")
-    fun updateBook(@PathVariable id: UUID?, @RequestBody book: Book?): ResponseEntity<*> {
-        return if (bookService.updateBook(id, book)) {
-            ResponseEntity<Any>(HttpStatus.OK)
+    @DeleteMapping("/{id}")
+    fun deleteBook(@PathVariable id: UUID?): ResponseEntity<*> {
+        return if (bookService.deleteBook(id)) {
+            ResponseEntity<Any>(HttpStatus.NO_CONTENT)
         } else {
             logger.error("Not found id: $id")
             throw ResourceNotFoundException()

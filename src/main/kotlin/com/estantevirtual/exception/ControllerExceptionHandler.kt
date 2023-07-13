@@ -24,7 +24,7 @@ class ControllerExceptionHandler {
     }
 
     @ExceptionHandler(ResourceAlreadyExistsException::class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.CONFLICT)
     fun handleAlreadyExists(ex: ResourceAlreadyExistsException): ErrorMessage {
         return ErrorMessage(
             ex.message!!
@@ -56,6 +56,14 @@ class ControllerExceptionHandler {
         ex.constraintViolations.forEach { e -> errors["message"] = e.message!! }
         return ErrorMessages(
             errors
+        )
+    }
+
+    @ExceptionHandler(WrongIsbnException::class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handleWrongIsbnException(ex: WrongIsbnException, req: WebRequest?): ErrorMessage {
+        return ErrorMessage(
+            ex.message!!
         )
     }
 }

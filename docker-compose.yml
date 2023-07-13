@@ -1,11 +1,11 @@
 version: '3'
 
 services:
-  db:
+  database:
     image: "postgres"
-    container_name: "db"
+    container_name: "database"
     volumes:
-      - ./db:/data/db
+      - ./database:/data/database
     ports:
       - "5432:5432"
     environment:
@@ -14,7 +14,7 @@ services:
       POSTGRES_DB: estantevirtual
   cache:
     image: redis:latest
-    container_name: "redis"
+    container_name: "cache"
     restart: always
     ports:
       - '6379:6379'
@@ -31,5 +31,5 @@ services:
     links:
       - cache
     depends_on:
-      - db
+      - database
       - cache

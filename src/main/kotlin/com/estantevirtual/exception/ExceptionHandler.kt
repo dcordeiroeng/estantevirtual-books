@@ -2,6 +2,8 @@ package com.estantevirtual.exception
 
 import com.estantevirtual.model.ErrorMessage
 import com.estantevirtual.model.ErrorMessages
+import org.hibernate.QueryException
+import org.springframework.data.mapping.PropertyReferenceException
 import org.springframework.http.HttpStatus
 import org.springframework.validation.FieldError
 import org.springframework.web.bind.MethodArgumentNotValidException
@@ -14,7 +16,7 @@ import javax.validation.ConstraintViolationException
 
 
 @RestControllerAdvice
-class ControllerExceptionHandler {
+class ExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException::class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     fun handleNotFound(ex: ResourceNotFoundException): ErrorMessage {
@@ -39,6 +41,22 @@ class ControllerExceptionHandler {
         )
     }
 
+    @ExceptionHandler(NumberFormatException::class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handleNumberFormatException(ex: NumberFormatException, req: WebRequest?): ErrorMessage {
+        return ErrorMessage(
+            "Only numbers are allowed"
+        )
+    }
+
+    @ExceptionHandler(PropertyReferenceException::class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handlePropertyReferenceException(ex: PropertyReferenceException, req: WebRequest?): ErrorMessage {
+        return ErrorMessage(
+            "No property reference found: ${ex.message}"
+        )
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     fun handleValidationError(ex: MethodArgumentNotValidException): ErrorMessages {
@@ -59,11 +77,21 @@ class ControllerExceptionHandler {
         )
     }
 
-    @ExceptionHandler(WrongIsbnException::class)
+    @ExceptionHandler(Exception::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    fun handleWrongIsbnException(ex: WrongIsbnException, req: WebRequest?): ErrorMessage {
+    fun handleOptionsException(ex: Exception, req: WebRequest?): ErrorMessage {
+        return when (ex) {
+            is IsbnException -> ErrorMessage(ex.message!!)
+            is OrderByException -> ErrorMessage(ex.message!!)
+            else -> ErrorMessage("An unexpected error occurred")
+        }
+    }
+
+    @ExceptionHandler(QueryException::class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    fun handleQueryException(ex: QueryException, req: WebRequest?): ErrorMessage {
         return ErrorMessage(
-            ex.message!!
+            "Error in the query parameter: ${ex.queryString}"
         )
     }
 }

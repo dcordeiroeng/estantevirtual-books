@@ -1,92 +1,111 @@
 package com.estantevirtual.service
 
+import com.estantevirtual.exception.IsbnException
 import com.estantevirtual.exception.ResourceAlreadyExistsException
-import com.estantevirtual.exception.WrongIsbnException
 import com.estantevirtual.model.Book
+import com.estantevirtual.model.Books
 import com.estantevirtual.model.Options
 import com.estantevirtual.repository.BookRepository
 import com.estantevirtual.utils.RedisCacheEvict
+import com.estantevirtual.validator.IsbnValidator
+import com.estantevirtual.validator.OptionsValidator
 import org.slf4j.Logger
 import org.springframework.beans.BeanUtils
 import org.springframework.cache.annotation.Cacheable
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
+import org.springframework.web.util.UriComponentsBuilder
 import java.util.*
-import java.util.regex.Pattern
 
 @Service
 class BookService(
     private val bookRepository: BookRepository,
     private val redisCacheEvict: RedisCacheEvict,
-    private val logger: Logger
+    private val logger: Logger,
+    private val isbnValidator: IsbnValidator,
+    private val optionsValidator: OptionsValidator
 ) {
     @Cacheable(value = ["books"])
-    fun findBookBy(id: UUID?): Optional<Book?>? {
-        return bookRepository.findById(id)
+    fun findBookByIsbn(isbn: String?): Optional<Book?>? {
+        return bookRepository.findByIsbn(isbn)
     }
 
     @Cacheable(value = ["books"])
-    fun findBooks(options: Options): Page<Book?> {
-        validateParams(options)
-        val page = PageRequest.of(
+    fun findBooks(options: Options): Books {
+        optionsValidator.validateParams(options)
+        val books = bookRepository.findAll(
+            PageRequest.of(
+                options.page,
+                options.pageSize,
+                Sort.Direction.valueOf(options.sort!!),
+                options.orderBy
+            )
+        )
+
+        val nextPage = if (books.hasNext()) {
+            buildPageUrl(options.page + 1, UriComponentsBuilder.fromPath("/v1/books"), options)
+        } else null
+
+        val prevPage = if (books.hasPrevious() && books.hasContent()) {
+            buildPageUrl(options.page - 1, UriComponentsBuilder.fromPath("/v1/books"), options)
+        } else null
+
+        return Books(
+            books,
+            books.totalElements,
             options.page,
             options.pageSize,
-            Sort.Direction.valueOf(options.sort!!),
-            options.orderBy
+            nextPage,
+            prevPage
         )
-        return bookRepository.findAll(page)
     }
 
-    fun saveBook(book: Book) {
-        if (isbnValidate(book.isbn)) {
+    fun saveBook(book: Book?) {
+        book ?: throw IllegalArgumentException("Book cannot be null")
+        if (isbnValidator.isValid(book.isbn)) {
             val response = bookRepository.findByIsbn(book.isbn)
             if (response.isPresent) {
-                logger.error(("Book with ISBN: ${book.isbn} already exists"))
+                logger.error(("Book with isbn: ${book.isbn} already exists"))
                 throw ResourceAlreadyExistsException("Resource already exists")
             }
-            book.id = UUID.randomUUID()
             bookRepository.save(book)
-            logger.info("Created id: ${book.id} ")
+            logger.info("Created isbn: ${book.isbn} ")
             redisCacheEvict.evictAllCaches()
         } else {
-            throw WrongIsbnException()
+            throw IsbnException()
         }
     }
 
-    fun deleteBook(id: UUID?): Boolean {
-        if (bookRepository.findById(id).isPresent) {
-            bookRepository.deleteById(id)
-            logger.info("Deleted id: $id")
-            redisCacheEvict.evictAllCaches()
-            return true
-        }
-        return false
-    }
-
-    fun updateBook(id: UUID?, newBook: Book?): Boolean {
-        val existingBook = bookRepository.findById(id)
-        if (existingBook.isPresent && newBook != null) {
+    fun updateBook(isbn: String?, book: Book?): Boolean {
+        book ?: throw IllegalArgumentException("Book cannot be null")
+        val existingBook = bookRepository.findByIsbn(isbn)
+        if (existingBook.isPresent) {
             val bookToUpdate = existingBook.get()
-            BeanUtils.copyProperties(newBook, bookToUpdate, "id")
+            BeanUtils.copyProperties(book, bookToUpdate, "isbn")
             bookRepository.save(bookToUpdate)
-            logger.info("Updated id: $id")
+            logger.info("Updated isbn: $isbn")
             redisCacheEvict.evictAllCaches()
             return true
         }
         return false
     }
 
-    private fun validateParams(options: Options) {
-        require(options.page >= 0) { "Page must be equal or greater than 0" }
-        require(options.pageSize > 0) { "Page size must be greater than 0" }
-        require(!(options.sort != Sort.Direction.ASC.toString() && options.sort != Sort.Direction.DESC.toString())) { "Sort must be ASC or DESC" }
+    fun deleteBook(isbn: String?): Boolean {
+        if (bookRepository.findByIsbn(isbn).isPresent) {
+            bookRepository.deleteById(isbn)
+            logger.info("Deleted isbn: $isbn")
+            redisCacheEvict.evictAllCaches()
+            return true
+        }
+        return false
     }
 
-    private fun isbnValidate(text: String?): Boolean {
-        val p = Pattern.compile("^\\d{3}-\\d{10}$")
-        val m = p.matcher(text!!)
-        return m.matches()
+    private fun buildPageUrl(page: Int, uriBuilder: UriComponentsBuilder, options: Options): String {
+        return uriBuilder.replaceQueryParam("page", page)
+            .queryParam("per_page", options.pageSize)
+            .queryParam("order_by", options.orderBy)
+            .queryParam("sort", options.sort)
+            .toUriString()
     }
 }

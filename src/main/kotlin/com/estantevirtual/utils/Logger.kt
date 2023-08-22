@@ -1,6 +1,6 @@
 package com.estantevirtual.utils
 
-import com.estantevirtual.EstanteVirtualApplication
+import com.estantevirtual.BooksApplication
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
@@ -10,6 +10,6 @@ import org.springframework.context.annotation.Configuration
 class Logger {
     @Bean
     fun getLogger(): Logger {
-        return LoggerFactory.getLogger(EstanteVirtualApplication::class.java)
+        return LoggerFactory.getLogger(BooksApplication::class.java)
     }
 }

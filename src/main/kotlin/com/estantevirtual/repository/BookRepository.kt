@@ -21,5 +21,5 @@ interface BookRepository : CrudRepository<Book, String> {
     fun findByIsbn(isbn: String?): Optional<Book?>
 
     @Transactional
-    fun deleteById(id: String?)
+    fun deleteByIsbn(isbn: String?)
 }

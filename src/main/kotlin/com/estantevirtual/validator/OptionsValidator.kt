@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component
 @Component
 class OptionsValidator {
 
-    val orderByValues = listOf("id", "isbn", "title", "author", "pages")
+    val orderByValues = listOf("id", "isbn", "title", "pages")
 
     fun validateParams(options: Options) {
         require(options.page >= 0) { "Page must be equal or greater than 0" }
@@ -18,6 +18,7 @@ class OptionsValidator {
         }
         isValid(options.orderBy)
     }
+
     private fun isValid(value: String?) {
         if (!orderByValues.contains(value)) throw OrderByException()
     }

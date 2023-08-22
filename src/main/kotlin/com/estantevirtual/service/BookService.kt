@@ -27,7 +27,7 @@ class BookService(
     private val optionsValidator: OptionsValidator
 ) {
     @Cacheable(value = ["books"])
-    fun findBookByIsbn(isbn: String?): Optional<Book?>? {
+    fun findBookBy(isbn: String?): Optional<Book?>? {
         return bookRepository.findByIsbn(isbn)
     }
 
@@ -61,40 +61,39 @@ class BookService(
         )
     }
 
-    fun saveBook(book: Book?) {
+    fun save(book: Book?) {
         book ?: throw IllegalArgumentException("Book cannot be null")
         if (isbnValidator.isValid(book.isbn)) {
             val response = bookRepository.findByIsbn(book.isbn)
             if (response.isPresent) {
-                logger.error(("Book with isbn: ${book.isbn} already exists"))
                 throw ResourceAlreadyExistsException("Resource already exists")
             }
             bookRepository.save(book)
-            logger.info("Created isbn: ${book.isbn} ")
+            logger.info("Created ISBN: ${book.isbn} ")
             redisCacheEvict.evictAllCaches()
         } else {
             throw IsbnException()
         }
     }
 
-    fun updateBook(isbn: String?, book: Book?): Boolean {
+    fun update(isbn: String?, book: Book?): Boolean {
         book ?: throw IllegalArgumentException("Book cannot be null")
         val existingBook = bookRepository.findByIsbn(isbn)
         if (existingBook.isPresent) {
             val bookToUpdate = existingBook.get()
             BeanUtils.copyProperties(book, bookToUpdate, "isbn")
             bookRepository.save(bookToUpdate)
-            logger.info("Updated isbn: $isbn")
+            logger.info("Updated ISBN: $isbn")
             redisCacheEvict.evictAllCaches()
             return true
         }
         return false
     }
 
-    fun deleteBook(isbn: String?): Boolean {
+    fun delete(isbn: String?): Boolean {
         if (bookRepository.findByIsbn(isbn).isPresent) {
-            bookRepository.deleteById(isbn)
-            logger.info("Deleted isbn: $isbn")
+            bookRepository.deleteByIsbn(isbn)
+            logger.info("Deleted ISBN: $isbn")
             redisCacheEvict.evictAllCaches()
             return true
         }

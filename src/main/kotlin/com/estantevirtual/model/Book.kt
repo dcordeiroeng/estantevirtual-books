@@ -1,38 +1,20 @@
 package com.estantevirtual.model
 
-import lombok.Getter
-import lombok.Setter
-import org.hibernate.validator.constraints.Length
+import lombok.Data
 import java.io.Serializable
-import javax.persistence.Column
-import javax.persistence.Entity
-import javax.persistence.Id
+import javax.persistence.*
 import javax.validation.constraints.Min
 import javax.validation.constraints.NotNull
 
 @Entity
-@Getter
-@Setter
-class Book(
-    isbn: String,
-    title: String,
-    author: String,
-    pages: Int
-) : Serializable {
-
+@Data
+data class Book(
     @Id
     @Column(name = "isbn")
-    var isbn: String? = isbn
-
-    @NotNull(message = "Title is required")
-    @Length(min = 3, max = 100, message = "Book title must be between {min} and {max} characters")
-    var title: String? = title
-
-    @NotNull(message = "Author is required")
-    @Length(min = 3, max = 35, message = "Author name must be between {min} and {max} characters")
-    var author: String? = author
-
-    @NotNull(message = "Number of pages are required")
-    @Min(value = 1, message = "Number of pages must be greater than 0")
-    var pages: Int? = pages
-}
+    var isbn: String,
+    @field:NotNull(message = "Title is required")
+    var title: String,
+    @field:NotNull(message = "Number of pages are required")
+    @field:Min(value = 1, message = "Number of pages must be greater than 0")
+    var pages: Int
+) : Serializable

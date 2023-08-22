@@ -25,7 +25,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: "app"
+    container_name: "app-books"
     ports:
       - "8080:8080"
     links:

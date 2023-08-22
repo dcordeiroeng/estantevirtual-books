@@ -1,6 +1,6 @@
-package com.estantevirtual.repository
+package com.estantevirtual.books.repository
 
-import com.estantevirtual.model.Book
+import com.estantevirtual.books.model.Book
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.Query

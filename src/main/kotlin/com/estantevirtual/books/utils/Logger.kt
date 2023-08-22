@@ -1,6 +1,6 @@
-package com.estantevirtual.utils
+package com.estantevirtual.books.utils
 
-import com.estantevirtual.BooksApplication
+import com.estantevirtual.books.BooksApplication
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean

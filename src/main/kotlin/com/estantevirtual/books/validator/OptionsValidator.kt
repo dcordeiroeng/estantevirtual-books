@@ -1,7 +1,7 @@
-package com.estantevirtual.validator
+package com.estantevirtual.books.validator
 
-import com.estantevirtual.exception.OrderByException
-import com.estantevirtual.model.Options
+import com.estantevirtual.books.exception.OrderByException
+import com.estantevirtual.books.model.Options
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Component
 

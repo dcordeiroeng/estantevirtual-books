@@ -1,4 +1,4 @@
-package com.estantevirtual.utils
+package com.estantevirtual.books.utils
 
 import org.slf4j.Logger
 import org.springframework.cache.CacheManager
@@ -13,13 +13,12 @@ class RedisCacheEvict(
     private val cacheManager: CacheManager,
     private val logger: Logger
 ) {
+    @Throws(IllegalStateException::class)
     @Scheduled(fixedRate = 60000)
     fun evictAllCaches() {
         if (cacheManager is RedisCacheManager) {
             val redisCacheManager: RedisCacheManager = cacheManager
             redisCacheManager.cacheNames.forEach { cacheName -> redisCacheManager.getCache(cacheName)?.clear() }
-        } else {
-            throw IllegalStateException("Cache manager is not RedisCacheManager")
-        }
+        } else throw IllegalStateException("Cache manager is not RedisCacheManager")
     }
 }

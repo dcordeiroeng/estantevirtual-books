@@ -1,4 +1,4 @@
-package com.estantevirtual.validator
+package com.estantevirtual.books.validator
 
 import org.springframework.stereotype.Component
 import java.util.regex.Pattern

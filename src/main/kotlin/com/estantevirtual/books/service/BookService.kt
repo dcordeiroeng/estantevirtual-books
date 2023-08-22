@@ -1,14 +1,14 @@
-package com.estantevirtual.service
+package com.estantevirtual.books.service
 
-import com.estantevirtual.exception.IsbnException
-import com.estantevirtual.exception.ResourceAlreadyExistsException
-import com.estantevirtual.model.Book
-import com.estantevirtual.model.Books
-import com.estantevirtual.model.Options
-import com.estantevirtual.repository.BookRepository
-import com.estantevirtual.utils.RedisCacheEvict
-import com.estantevirtual.validator.IsbnValidator
-import com.estantevirtual.validator.OptionsValidator
+import com.estantevirtual.books.exception.IsbnException
+import com.estantevirtual.books.exception.ResourceAlreadyExistsException
+import com.estantevirtual.books.model.Book
+import com.estantevirtual.books.model.Books
+import com.estantevirtual.books.model.Options
+import com.estantevirtual.books.repository.BookRepository
+import com.estantevirtual.books.utils.RedisCacheEvict
+import com.estantevirtual.books.validator.IsbnValidator
+import com.estantevirtual.books.validator.OptionsValidator
 import org.slf4j.Logger
 import org.springframework.beans.BeanUtils
 import org.springframework.cache.annotation.Cacheable

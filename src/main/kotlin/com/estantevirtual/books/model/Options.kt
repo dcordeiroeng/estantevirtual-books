@@ -1,4 +1,4 @@
-package com.estantevirtual.model
+package com.estantevirtual.books.model
 
 import lombok.AllArgsConstructor
 import lombok.Data

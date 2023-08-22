@@ -1,7 +1,7 @@
-package com.estantevirtual.exception
+package com.estantevirtual.books.exception
 
-import com.estantevirtual.model.ErrorMessage
-import com.estantevirtual.model.ErrorMessages
+import com.estantevirtual.books.model.ErrorMessage
+import com.estantevirtual.books.model.ErrorMessages
 import org.hibernate.QueryException
 import org.slf4j.Logger
 import org.springframework.data.mapping.PropertyReferenceException
